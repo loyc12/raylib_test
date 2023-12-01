@@ -1,11 +1,11 @@
 .idea/
+.vs/
 .vscode/
 .DS_Store
-.vs/
-cmake-build-debug/
 bin/
 build/
 out/
+cmake-build-debug/
 
 Makefile
 
@@ -16,3 +16,4 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 cmake_install.cmake
 _deps/
+install_manifest.txt
