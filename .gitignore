@@ -7,8 +7,6 @@ build/
 out/
 cmake-build-debug/
 
-Makefile
-
 CMakeSettings.json
 CMakeCache.txt
 CMakeFiles/
