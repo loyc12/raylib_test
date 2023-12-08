@@ -11,7 +11,7 @@
 #define ROT_FACTOR		0.1f
 #define MOV_FACTOR		0.2f
 
-#define DEBUG			false
+#define DEBUG			true
 
 #define elif else if
 
@@ -92,7 +92,7 @@ int main(void)
 // Define the camera to look into our 3d world (position, target, up vector)
 Camera *initPlayerCam()
 {
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
+	InitWindow( SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE );
 	DisableCursor();	// Limit cursor to relative movement inside the window
 	SetTargetFPS(60);
 
@@ -116,14 +116,23 @@ bool 	shouldHaveVoxel( int x, int y, int z )
 
 	//if( rand() % 32 == 0 ){ return false; }
 
-	if( x == S / 2 && y == S / 2 && z == S / 2 ){ return true; }
+	if( x == S / 2 || x + 1 == S / 2 )
+		if( y == S / 2 || y + 1 == S / 2 )
+			if( z == S / 2 || z + 1 == S / 2 )
+				{ return true; }
 
-	int xDist2 = ( x - ( S / 2 )) * ( x - ( S / 2 ));
-	int yDist2 = ( y - ( S / 2 )) * ( y - ( S / 2 ));
-	int zDist2 = ( z - ( S / 2 )) * ( z - ( S / 2 ));
-	int threshold = (( S / 2 ) * ( S / 2 ));
+	int		rad = ( S / 2 );
+	float	dec = 0.5f;
 
-	if( xDist2 + yDist2 + zDist2 < threshold){ return false; }
+	int xDist2 = (( x - rad ) + dec ) * (( x - rad ) + dec );
+	int yDist2 = (( y - rad ) + dec ) * (( y - rad ) + dec );
+	int zDist2 = (( z - rad ) + dec ) * (( z - rad ) + dec );
+	int inner = ( S / 3 ) * ( S / 3 );
+	int outer = ( S / 2 ) * ( S / 2 );
+
+
+	if( xDist2 + yDist2 + zDist2 < inner ){ return false; }
+	if( xDist2 + yDist2 + zDist2 > outer ){ return false; }
 
 	return true;
 }
@@ -147,7 +156,6 @@ bool	hasVoxel( bool voxels[S][S][S], int x, int y, int z )
 
 	return voxels[x][y][z];
 }
-
 
 
 // This new camera function allows custom movement/rotation values to be directly provided
@@ -217,10 +225,10 @@ void	drawFace2( Vector3 pos, int dir )
 	Color color;
 
 	if( dir == XPDIR ){
-		Vector3 p1 = { pos.x + 1.0f, pos.y + 0.0f, pos.z + 1.0f };
-		Vector3 p2 = { pos.x + 1.0f, pos.y + 0.0f, pos.z + 0.0f };
-		Vector3 p3 = { pos.x + 1.0f, pos.y + 1.0f, pos.z + 0.0f };
-		Vector3 p4 = { pos.x + 1.0f, pos.y + 1.0f, pos.z + 1.0f };
+		v1 = ( Vector3 ){ pos.x + 1.0f, pos.y + 0.0f, pos.z + 1.0f };
+		v2 = ( Vector3 ){ pos.x + 1.0f, pos.y + 0.0f, pos.z + 0.0f };
+		v3 = ( Vector3 ){ pos.x + 1.0f, pos.y + 1.0f, pos.z + 0.0f };
+		v4 = ( Vector3 ){ pos.x + 1.0f, pos.y + 1.0f, pos.z + 1.0f };
 		color = XPCOL;
 	}
 	elif( dir == XNDIR ){
@@ -301,7 +309,10 @@ void	drawGeometry( Camera *camera, bool voxels[S][S][S] )
 	for( int x = 0; x < S; x++ )
 		for( int y = 0; y < S; y++ )
 			for( int z = 0; z < S; z++ )
+			{
 				drawVoxel2(voxels, ( Vector3 ){ x, y, z } );
+				//drawVoxel( ( Vector3 ){ x, y, z } );
+			}
 
 	EndMode3D();
 }
