@@ -9,9 +9,12 @@
 #define FONT_SIZE		20
 
 #define ROT_FACTOR		0.1f
-#define MOV_FACTOR		0.2f
+#define MOV_FACTOR		0.4f
 
 #define DEBUG			true
+#define SCALE			16
+#define S				64
+
 
 #define elif else if
 
@@ -30,11 +33,9 @@
 #define YPCOL BLUE
 #define YNCOL VIOLET
 
-#define S 32
 
 #define FNP		(void**)&
 void nullFree	(void **ptrloc){ free( *ptrloc ); *ptrloc = 0; }
-
 //#define FNA			(void***)&
 //void nullFreeArray	(void ***aploc, int size){ for (int i = 0; i < size; i++){ nullFree( aploc[i] ); }}
 
@@ -108,18 +109,54 @@ Camera *initPlayerCam()
 	return camera;
 }
 
+float isMandelbrot( int x, int y, int z )
+{
+	float outer = 4.0f;
+	float inner = 0.01f;
+
+	float dx = (( float )x - ( S / 2 )) / SCALE;
+	float dy = (( float )y - ( S / 2 )) / SCALE;
+	float dz = (( float )z - ( S / 2 )) / SCALE;
+
+	float x2, y2, z2;
+
+	// aplies a 3D mandelbrot formula
+	for( int i = 0; i < 8; i++ )
+	{
+		x2 = dx * dx;
+		y2 = dy * dy;
+		z2 = dz * dz;
+
+		if( x2 + y2 + z2 > outer ) { return false; }
+
+		float xtemp = x2 * ( y2 + z2 );
+		float ytemp = y2 * ( x2 + z2 );
+		float ztemp = z2 * ( x2 + y2 );
+
+		dx = xtemp;
+		dy = ytemp;
+		dz = ztemp;
+	}
+
+
+	if( x2 + y2 + z2 < inner ) { return false; }
+
+	return true;
+}
+
 bool 	shouldHaveVoxel( int x, int y, int z )
 {
+
 	if( x < 0 || x >= S ){ return false; }
 	if( y < 0 || y >= S ){ return false; }
 	if( z < 0 || z >= S ){ return false; }
 
 	//if( rand() % 32 == 0 ){ return false; }
 
-	if( x == S / 2 || x + 1 == S / 2 )
-		if( y == S / 2 || y + 1 == S / 2 )
-			if( z == S / 2 || z + 1 == S / 2 )
-				{ return true; }
+	int val = true;
+
+
+
 
 	int		rad = ( S / 2 );
 	float	dec = 0.5f;
@@ -130,11 +167,20 @@ bool 	shouldHaveVoxel( int x, int y, int z )
 	int inner = ( S / 3 ) * ( S / 3 );
 	int outer = ( S / 2 ) * ( S / 2 );
 
+	if( xDist2 + yDist2 + zDist2 < inner ){ val = false; }
+	if( xDist2 + yDist2 + zDist2 > outer ){ val = false; }
 
-	if( xDist2 + yDist2 + zDist2 < inner ){ return false; }
-	if( xDist2 + yDist2 + zDist2 > outer ){ return false; }
 
-	return true;
+
+//	val = isMandelbrot( x, y, z );
+
+	if( x == S / 2 || x + 1 == S / 2 )
+		if( y == S / 2 || y + 1 == S / 2 )
+			if( z == S / 2 || z + 1 == S / 2 )
+				{ val = !val; }
+
+
+	return val;
 }
 
 void	generateGeometry( bool voxels[S][S][S] )
